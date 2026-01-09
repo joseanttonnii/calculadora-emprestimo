@@ -51,7 +51,7 @@ function calcular({ tipo, opcao, valor, parcelas }: { tipo: Tipo, opcao: Opcao, 
   return { valorLiberado, totalPagar, parcela };
 }
 
-// Função para copiar texto (compatível com celular)
+// Função para copiar texto
 function copiarTexto(texto: string) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(texto).then(() => alert("Resultado copiado!")).catch(() => fallbackCopy(texto));
@@ -89,12 +89,22 @@ export default function Calculadora() {
 
   const handleCopiar = () => {
     if (!res) return;
-    const texto = `Valor Liberado: R$ ${formatar(res.valorLiberado)}
+
+    const tipoCartao = tipo === "tipo1" ? "ELO" : "VISA/Master";
+
+    const texto = `
+=====AlexandreCred=====
+
+Cartão: ${tipoCartao}
+Valor Liberado: R$ ${formatar(res.valorLiberado)}
 Prazo: ${parcelas > 0 ? `${parcelas}x` : '-'}
 Parcela: R$ ${res.parcela !== null ? formatar(res.parcela) : '-'}
-Total a pagar: R$ ${formatar(res.totalPagar)}`;
-    copiarTexto(texto);
+Total a pagar: R$ ${formatar(res.totalPagar)}
+    `;
+    copiarTexto(texto.trim());
   };
+
+  const tipoCartaoDisplay = tipo === "tipo1" ? "ELO" : "VISA/Master";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex items-center justify-center p-6">
@@ -140,6 +150,7 @@ Total a pagar: R$ ${formatar(res.totalPagar)}`;
             <h2 className="text-xl font-semibold text-purple-400 mb-4">Resultado</h2>
             {res ? (
               <div className="space-y-2 text-sm">
+                <p><span className="text-zinc-400">Cartão:</span> {tipoCartaoDisplay}</p>
                 <p><span className="text-zinc-400">Valor Liberado:</span> R$ {formatar(res.valorLiberado)}</p>
                 <p><span className="text-zinc-400">Prazo:</span> {parcelas > 0 ? `${parcelas}x` : '-'}</p>
                 <p><span className="text-zinc-400">Parcela:</span> R$ {res.parcela !== null ? formatar(res.parcela) : '-'}</p>
