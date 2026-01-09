@@ -51,12 +51,10 @@ function calcular({ tipo, opcao, valor, parcelas }: { tipo: Tipo, opcao: Opcao, 
   return { valorLiberado, totalPagar, parcela };
 }
 
-// Função copiar texto compatível com celular
+// Função para copiar texto (compatível com celular)
 function copiarTexto(texto: string) {
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto)
-      .then(() => alert("Resultado copiado!"))
-      .catch(() => fallbackCopy(texto));
+    navigator.clipboard.writeText(texto).then(() => alert("Resultado copiado!")).catch(() => fallbackCopy(texto));
   } else {
     fallbackCopy(texto);
   }
@@ -70,12 +68,8 @@ function fallbackCopy(texto: string) {
   document.body.appendChild(textarea);
   textarea.focus();
   textarea.select();
-  try {
-    document.execCommand("copy");
-    alert("Resultado copiado!");
-  } catch {
-    alert("Não foi possível copiar o resultado.");
-  }
+  try { document.execCommand("copy"); alert("Resultado copiado!"); } 
+  catch { alert("Não foi possível copiar o resultado."); }
   document.body.removeChild(textarea);
 }
 
@@ -83,16 +77,13 @@ function fallbackCopy(texto: string) {
 export default function Calculadora() {
   const [tipo, setTipo] = useState<Tipo>("tipo1");
   const [opcao, setOpcao] = useState<Opcao>("liberado");
-  const [valor, setValor] = useState<string>(""); // começa vazio
+  const [valor, setValor] = useState<string>("");
   const [parcelas, setParcelas] = useState<number>(1);
   const [res, setRes] = useState<Resultado | null>(null);
 
   const handleCalcular = () => {
     const numValor = Number(valor);
-    if (isNaN(numValor) || numValor <= 0) {
-      alert("Digite um valor válido");
-      return;
-    }
+    if (isNaN(numValor) || numValor <= 0) { alert("Digite um valor válido"); return; }
     setRes(calcular({ tipo, opcao, valor: numValor, parcelas }));
   };
 
@@ -115,13 +106,9 @@ Total a pagar: R$ ${formatar(res.totalPagar)}`;
           <p className="text-sm text-zinc-400">Simulação AlexandreCred</p>
 
           <div className="space-y-3">
-            <select
-              className="w-full p-2 rounded bg-zinc-800"
-              value={tipo}
-              onChange={e => setTipo(e.target.value as Tipo)}
-            >
+            <select className="w-full p-2 rounded bg-zinc-800" value={tipo} onChange={e => setTipo(e.target.value as Tipo)}>
               <option value="tipo1">ELO</option>
-              <option value="tipo2">VISA / MASTER</option>
+              <option value="tipo2">VISA/Master</option>
             </select>
 
             <select className="w-full p-2 rounded bg-zinc-800" value={opcao} onChange={e => setOpcao(e.target.value as Opcao)}>
