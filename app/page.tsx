@@ -9,12 +9,12 @@ const formatar = (v: number) =>
 // Taxas de empréstimo
 const taxas = {
   tipo1: {
-    liberado: { 0:5,1:8,2:9,3:10,4:10.5,5:11.5,6:12.5,7:13,8:14,9:14.5,10:14.99,11:15.75,12:16.75,13:17.5,14:17.75,15:20.5,16:21,17:21.5,18:24.75,19:27.99,20:28.99,21:29.99 },
-    limite: { 0:4.76,1:7.41,2:8.26,3:9.09,4:9.5,5:10.31,6:11.11,7:11.5,8:12.28,9:12.66,10:13.04,11:13.61,12:14.35,13:14.89,14:15.07,15:17.01,16:17.36,17:17.76,18:19.84,19:21.87,20:22.47,21:23.07 }
-  },
-  tipo2: {
     liberado: { 0:4,1:7,2:8.25,3:8.75,4:9.5,5:9.99,6:10.75,7:11.25,8:11.75,9:12.25,10:12.99,11:13.75,12:14.49,13:16.5,14:17,15:17.49,16:18,17:19,18:19.99,19:22,20:24,21:24.99 },
     limite: { 0:3.85,1:6.54,2:7.62,3:8.04,4:8.67,5:9.08,6:9.71,7:10.11,8:10.45,9:10.89,10:11.5,11:12.09,12:12.66,13:14.16,14:14.53,15:14.89,16:15.25,17:15.97,18:16.66,19:18.03,20:19.35,21:19.99 }
+  },
+  tipo2: {
+    liberado: { 0:5,1:8,2:9,3:10,4:10.5,5:11.5,6:12.5,7:13,8:14,9:14.5,10:14.99,11:15.75,12:16.75,13:17.5,14:17.75,15:20.5,16:21,17:21.5,18:24.75,19:27.99,20:28.99,21:29.99 },
+    limite: { 0:4.76,1:7.41,2:8.26,3:9.09,4:9.5,5:10.31,6:11.11,7:11.5,8:12.28,9:12.66,10:13.04,11:13.61,12:14.35,13:14.89,14:15.07,15:17.01,16:17.36,17:17.76,18:19.84,19:21.87,20:22.47,21:23.07 }
   }
 } as const;
 
@@ -90,7 +90,7 @@ export default function Calculadora() {
   const handleCopiar = () => {
     if (!res) return;
 
-    const tipoCartao = tipo === "tipo1" ? "ELO" : "VISA/Master";
+    const tipoCartao = tipo === "tipo1" ? "VISA/MASTER" : "ELO/HIPER";
 
     const texto = `
 =====AlexandreCred=====
@@ -104,7 +104,7 @@ Total a pagar: R$ ${formatar(res.totalPagar)}
     copiarTexto(texto.trim());
   };
 
-  const tipoCartaoDisplay = tipo === "tipo1" ? "ELO" : "VISA/Master";
+  const tipoCartaoDisplay = tipo === "tipo1" ? "VISA/MASTER" : "ELO/HIPER";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex items-center justify-center p-6">
@@ -117,8 +117,8 @@ Total a pagar: R$ ${formatar(res.totalPagar)}
 
           <div className="space-y-3">
             <select className="w-full p-2 rounded bg-zinc-800" value={tipo} onChange={e => setTipo(e.target.value as Tipo)}>
-              <option value="tipo1">ELO</option>
-              <option value="tipo2">VISA/Master</option>
+              <option value="tipo1">VISA/MASTER</option>
+              <option value="tipo2">ELO/HIPER</option>
             </select>
 
             <select className="w-full p-2 rounded bg-zinc-800" value={opcao} onChange={e => setOpcao(e.target.value as Opcao)}>
