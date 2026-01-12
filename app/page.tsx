@@ -10,7 +10,7 @@ const formatar = (v: number) =>
 const taxas = {
   tipo1: {
     liberado: { 0:4,1:7.5,2:8.25,3:8.75,4:9.5,5:9.99,6:10.75,7:11.25,8:11.75,9:12.25,10:12.99,11:13.75,12:14.49,13:16.5,14:17,15:17.49,16:18,17:19,18:19.99,19:22,20:24,21:24.99 },
-   limite: {0:3.846153846153846,1:6.976744186046512,2:7.621329626546681,3:8.045977011494253,4:8.675799086757991,5:9.082644785889626,6:9.706546275395034,7:10.112359550561798,8:10.511882998171846,9:10.889021224513619,10:11.402070064686851,11:12.087912087912088,12:12.808771168579914,13:14.163090128755365,14:14.52991452991453,15:14.892752574687633,16:15.254237288135593,17:15.966386554621849,18:16.663888657388115,19:18.032786885245903,20:19.35483870967742,21:19.993599487959037}
+    limite: {0:3.846153846153846,1:6.976744186046512,2:7.621329626546681,3:8.045977011494253,4:8.675799086757991,5:9.082644785889626,6:9.706546275395034,7:10.112359550561798,8:10.511882998171846,9:10.889021224513619,10:11.402070064686851,11:12.087912087912088,12:12.808771168579914,13:14.163090128755365,14:14.52991452991453,15:14.892752574687633,16:15.254237288135593,17:15.966386554621849,18:16.663888657388115,19:18.032786885245903,20:19.35483870967742,21:19.993599487959037}
   },
   tipo2: {
     liberado: { 0:5,1:8,2:9,3:10,4:10.5,5:11.5,6:12.5,7:13,8:14,9:14.5,10:14.99,11:15.75,12:16.75,13:17.5,14:17.75,15:20.5,16:21,17:21.5,18:24.75,19:27.99,20:28.99,21:29.99 },
@@ -26,6 +26,13 @@ interface Resultado {
   valorLiberado: number;
   totalPagar: number;
   parcela: number | null;
+}
+
+// ====== HISTÓRICO ======
+interface HistoricoItem {
+  tipo: Tipo;
+  parcelas: number;
+  resultado: Resultado;
 }
 
 // Função de cálculo
@@ -81,10 +88,20 @@ export default function Calculadora() {
   const [parcelas, setParcelas] = useState<number>(1);
   const [res, setRes] = useState<Resultado | null>(null);
 
+  // ====== HISTÓRICO ======
+  const [historico, setHistorico] = useState<HistoricoItem[]>([]);
+
   const handleCalcular = () => {
     const numValor = Number(valor);
     if (isNaN(numValor) || numValor <= 0) { alert("Digite um valor válido"); return; }
-    setRes(calcular({ tipo, opcao, valor: numValor, parcelas }));
+
+    const resultado = calcular({ tipo, opcao, valor: numValor, parcelas });
+    setRes(resultado);
+
+    setHistorico(prev => {
+      const novo = [{ tipo, parcelas, resultado }, ...prev];
+      return novo.slice(0, 3);
+    });
   };
 
   const handleCopiar = () => {
@@ -108,7 +125,7 @@ Total a pagar: R$ ${formatar(res.totalPagar)}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl grid md:grid-cols-2 gap-6">
+      <div className="w-full max-w-5xl grid md:grid-cols-3 gap-6">
 
         {/* Painel Entrada */}
         <div className="bg-zinc-900/70 backdrop-blur rounded-2xl p-6 space-y-4 shadow-xl">
@@ -152,7 +169,7 @@ Total a pagar: R$ ${formatar(res.totalPagar)}
               <div className="space-y-2 text-sm">
                 <p><span className="text-zinc-400">Cartão:</span> {tipoCartaoDisplay}</p>
                 <p><span className="text-zinc-400">Valor Liberado:</span> R$ {formatar(res.valorLiberado)}</p>
-                <p><span className="text-zinc-400">Prazo:</span> {parcelas > 0 ? `${parcelas}x` : '-'}</p>
+                <p><span className="text-zinc-400">Prazo:</span> {parcelas}x</p>
                 <p><span className="text-zinc-400">Parcela:</span> R$ {res.parcela !== null ? formatar(res.parcela) : '-'}</p>
                 <p className="text-lg font-bold"><span className="text-zinc-400">Total a pagar:</span> R$ {formatar(res.totalPagar)}</p>
               </div>
@@ -167,6 +184,28 @@ Total a pagar: R$ ${formatar(res.totalPagar)}
             </button>
           )}
         </div>
+
+        {/* Painel Histórico */}
+        <div className="bg-zinc-900/70 backdrop-blur rounded-2xl p-6 shadow-xl">
+          <h2 className="text-xl font-semibold text-purple-400 mb-4">Últimas Simulações</h2>
+
+          {historico.length === 0 && (
+            <p className="text-zinc-500 text-sm">Nenhuma simulação ainda</p>
+          )}
+
+          <div className="space-y-3 text-sm">
+            {historico.map((item, index) => (
+              <div key={index} className="border border-zinc-700 rounded p-3">
+                <p><span className="text-zinc-400">Cartão:</span> {item.tipo === "tipo1" ? "VISA/MASTER" : "ELO/HIPER"}</p>
+                <p><span className="text-zinc-400">Prazo:</span> {item.parcelas}x</p>
+                <p><span className="text-zinc-400">Parcela:</span> R$ {item.resultado.parcela !== null ? formatar(item.resultado.parcela) : '-'}</p>
+                <p><span className="text-zinc-400">Liberado:</span> R$ {formatar(item.resultado.valorLiberado)}</p>
+                <p><span className="text-zinc-400">Total:</span> R$ {formatar(item.resultado.totalPagar)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
