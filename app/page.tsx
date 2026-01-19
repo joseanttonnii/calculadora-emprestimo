@@ -43,27 +43,24 @@ export default function Calculadora() {
   const [mostrarHistorico, setMostrarHistorico] = useState(false);
   const [mostrarMaquinas, setMostrarMaquinas] = useState(false);
 
-  // LOGICA DAS MAQUINAS ATUALIZADA
+  // LOGICA DAS MAQUINAS (Removido m4)
   const checarMaquina = (t: Tipo, p: number) => {
-    const m1 = t === "tipo1" && p <= 8; // Pag Bank: VISA/MASTER 0-8x
-    const m2 = t === "tipo1" && p >= 9 && p <= 12; // Infinity: VISA/MASTER 9-12x
-    const m3 = (t === "tipo1" && p >= 13) || (t === "tipo2" && p >= 5); // Rede: VISA 13-21x / ELO 5-21x
-    const m4 = t === "tipo2" && p <= 4; // Mercado Pago: ELO 0-4x
-    return { m1, m2, m3, m4 };
+    const m1 = t === "tipo1" && p <= 8;
+    const m2 = t === "tipo1" && p >= 9 && p <= 12;
+    const m3 = (t === "tipo1" && p >= 13) || (t === "tipo2"); // M3 agora cobre todo o Tipo 2 já que o MP foi removido
+    return { m1, m2, m3 };
   };
 
   const status = checarMaquina(tipo, parcelas);
   const isM1 = res && status.m1;
   const isM2 = res && status.m2;
   const isM3 = res && status.m3;
-  const isM4 = res && status.m4;
 
   const getMaquinaRecomendada = (t: Tipo, p: number) => {
     const s = checarMaquina(t, p);
     if (s.m1) return "Pag Bank";
     if (s.m2) return "Infinity";
     if (s.m3) return "Rede";
-    if (s.m4) return "Mercado Pago";
     return "N/A";
   };
 
@@ -109,8 +106,8 @@ export default function Calculadora() {
       
       {/* Botões Superiores */}
       <div className="flex gap-4 mb-8 w-full max-w-[800px] md:max-w-full justify-center md:justify-start">
-        <button onClick={() => setMostrarHistorico(!mostrarHistorico)} className={`px-6 py-2 rounded-lg border-2 transition-all font-bold text-xs tracking-wider ${mostrarHistorico ? "border-cyan-500 bg-cyan-500/20 text-white" : "border-zinc-800 text-zinc-500 hover:border-zinc-700"}`}>HISTÓRICO</button>
         <button onClick={() => setMostrarMaquinas(!mostrarMaquinas)} className={`px-6 py-2 rounded-lg border-2 transition-all font-bold text-xs tracking-wider ${mostrarMaquinas ? "border-cyan-500 bg-cyan-500/20 text-white" : "border-zinc-800 text-zinc-500 hover:border-zinc-700"}`}>MÁQUINAS</button>
+        <button onClick={() => setMostrarHistorico(!mostrarHistorico)} className={`px-6 py-2 rounded-lg border-2 transition-all font-bold text-xs tracking-wider ${mostrarHistorico ? "border-cyan-500 bg-cyan-500/20 text-white" : "border-zinc-800 text-zinc-500 hover:border-zinc-700"}`}>HISTÓRICO</button>
       </div>
 
       <div className={`grid gap-6 transition-all duration-500 items-stretch justify-center w-full ${ (mostrarHistorico && mostrarMaquinas) ? "max-w-[1400px] md:grid-cols-4" : (mostrarHistorico || mostrarMaquinas) ? "max-w-[1100px] md:grid-cols-3" : "max-w-[750px] md:grid-cols-2" }`}>
@@ -158,39 +155,12 @@ export default function Calculadora() {
           {res && <button onClick={handleCopiar} className="w-full border border-dashed border-cyan-500/50 text-cyan-500 py-3 rounded-xl font-bold uppercase text-[10px]">Copiar Resultado</button>}
         </div>
 
-        {/* 3. Histórico */}
-        {mostrarHistorico && (
-          <div className="bg-zinc-900/40 rounded-2xl p-6 border border-zinc-800/50 min-h-[520px] animate-in fade-in slide-in-from-right-4">
-            <h2 className="text-lg font-bold text-cyan-500 mb-6 uppercase tracking-widest">Histórico</h2>
-            <div className="space-y-6">
-              {historico.map((item, index) => (
-                <div key={index} className="border border-zinc-800 rounded-xl p-4 bg-black/40 text-[10px] space-y-2 relative overflow-hidden">
-                   <div className="absolute top-0 right-0 bg-cyan-500/10 px-2 py-1 text-[8px] text-cyan-500 font-bold rounded-bl-lg">#{index + 1}</div>
-                   
-                   <div className="mb-2">
-                     <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[8px] font-bold border border-green-500/30 uppercase tracking-tighter">
-                        Usou: {getMaquinaRecomendada(item.tipo, item.parcelas)}
-                     </span>
-                   </div>
-
-                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Cartão: <span className="text-white font-bold">{item.tipo === "tipo1" ? "VISA/MASTER" : "ELO/HIPER"}</span></p>
-                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Valor Liberado: <span className="text-white font-bold">R$ {formatar(item.resultado.valorLiberado)}</span></p>
-                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Prazo: <span className="text-white font-bold">{item.parcelas}x</span></p>
-                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Parcela: <span className="text-white font-bold">R$ {item.resultado.parcela ? formatar(item.resultado.parcela) : '-'}</span></p>
-                   <p className="text-white font-black pt-2 text-right text-xs">Total: R$ {formatar(item.resultado.totalPagar)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 4. Máquinas */}
+        {/* 3. Máquinas (Apenas 3 agora) */}
         {mostrarMaquinas && (
           <div className="bg-zinc-900/40 rounded-2xl p-6 border border-zinc-800/50 min-h-[520px] animate-in fade-in slide-in-from-right-4">
             <h2 className="text-lg font-bold text-cyan-500 mb-6 uppercase tracking-widest text-center">Máquinas</h2>
             <div className="space-y-3">
               
-              {/* Máquina 1 - PAG BANK */}
               <div className={`p-3 rounded-xl border-2 transition-all flex flex-col gap-2 ${isM1 ? "border-green-500 bg-green-500/10" : "border-zinc-800 opacity-30"}`}>
                 <p className="text-[10px] font-black text-center text-zinc-300 uppercase">Pag Bank</p>
                 <div className="flex items-center gap-3">
@@ -202,7 +172,6 @@ export default function Calculadora() {
                 </div>
               </div>
 
-              {/* Máquina 2 - INFINITY */}
               <div className={`p-3 rounded-xl border-2 transition-all flex flex-col gap-2 ${isM2 ? "border-green-500 bg-green-500/10" : "border-zinc-800 opacity-30"}`}>
                 <p className="text-[10px] font-black text-center text-zinc-300 uppercase">Infinity</p>
                 <div className="flex items-center gap-3">
@@ -215,31 +184,42 @@ export default function Calculadora() {
                 </div>
               </div>
 
-              {/* Máquina 3 - REDE */}
               <div className={`p-3 rounded-xl border-2 transition-all flex flex-col gap-2 ${isM3 ? "border-green-500 bg-green-500/10" : "border-zinc-800 opacity-30"}`}>
                 <p className="text-[10px] font-black text-center text-zinc-300 uppercase">Rede</p>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-white rounded-lg p-1 shrink-0 overflow-hidden shadow-lg"><img src="/maquina3.png" className="w-full h-full object-contain" alt="m3"/></div>
                   <div className="text-[9px]">
                      <p className="font-bold text-white uppercase tracking-tighter">Visa: 13-21x</p>
-                     <p className="text-zinc-400">Elo: 5-21x</p>
+                     <p className="text-zinc-400">Elo: 0-21x</p>
                      {isM3 && <p className="text-green-400 font-bold mt-1 animate-pulse">✓ INDICADA</p>}
                   </div>
                 </div>
               </div>
 
-              {/* Máquina 4 - MERCADO PAGO */}
-              <div className={`p-3 rounded-xl border-2 transition-all flex flex-col gap-2 ${isM4 ? "border-green-500 bg-green-500/10" : "border-zinc-800 opacity-30"}`}>
-                <p className="text-[10px] font-black text-center text-zinc-300 uppercase">Mercado Pago</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white rounded-lg p-1 shrink-0 overflow-hidden shadow-lg"><img src="/maquina4.png" className="w-full h-full object-contain" alt="m4"/></div>
-                  <div className="text-[9px]">
-                     <p className="font-bold text-white uppercase tracking-tighter">Elo: 0-4x</p>
-                     {isM4 && <p className="text-green-400 font-bold mt-1 animate-pulse">✓ INDICADA</p>}
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
+        )}
 
+        {/* 4. Histórico */}
+        {mostrarHistorico && (
+          <div className="bg-zinc-900/40 rounded-2xl p-6 border border-zinc-800/50 min-h-[520px] animate-in fade-in slide-in-from-right-4">
+            <h2 className="text-lg font-bold text-cyan-500 mb-6 uppercase tracking-widest">Histórico</h2>
+            <div className="space-y-6">
+              {historico.map((item, index) => (
+                <div key={index} className="border border-zinc-800 rounded-xl p-4 bg-black/40 text-[10px] space-y-2 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 bg-cyan-500/10 px-2 py-1 text-[8px] text-cyan-500 font-bold rounded-bl-lg">#{index + 1}</div>
+                   <div className="mb-2">
+                     <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[8px] font-bold border border-green-500/30 uppercase tracking-tighter">
+                        Usou: {getMaquinaRecomendada(item.tipo, item.parcelas)}
+                     </span>
+                   </div>
+                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Cartão: <span className="text-white font-bold">{item.tipo === "tipo1" ? "VISA/MASTER" : "ELO/HIPER"}</span></p>
+                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Valor Liberado: <span className="text-white font-bold">R$ {formatar(item.resultado.valorLiberado)}</span></p>
+                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Prazo: <span className="text-white font-bold">{item.parcelas}x</span></p>
+                   <p className="flex justify-between border-b border-zinc-800/30 pb-1 text-zinc-400">Parcela: <span className="text-white font-bold">R$ {item.resultado.parcela ? formatar(item.resultado.parcela) : '-'}</span></p>
+                   <p className="text-white font-black pt-2 text-right text-xs">Total: R$ {formatar(item.resultado.totalPagar)}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
